@@ -1,106 +1,70 @@
 /**
- * Use Case 4: Room Search & Availability Check
- * Demonstrates read-only access, filtering, and separation of concerns.
+ * Use Case 5: Booking Request Queue (FIFO)
+ * Demonstrates Queue for fair booking request handling.
  *
  * @author Sabariysh
- * @version 4.0
+ * @version 5.0
  */
 
 import java.util.*;
 
-// 🔹 Abstract Room Class
-abstract class Room {
-    protected String type;
-    protected double price;
+// 🔹 Reservation Class
+class Reservation {
+    private String guestName;
+    private String roomType;
 
-    public Room(String type, double price) {
-        this.type = type;
-        this.price = price;
+    public Reservation(String guestName, String roomType) {
+        this.guestName = guestName;
+        this.roomType = roomType;
     }
 
-    public void displayDetails() {
-        System.out.println("Room Type: " + type + " | Price: ₹" + price);
-    }
-
-    public String getType() {
-        return type;
+    public String toString() {
+        return "Guest: " + guestName + " | Room: " + roomType;
     }
 }
 
-// 🔹 Concrete Rooms
-class SingleRoom extends Room {
-    public SingleRoom() {
-        super("Single Room", 1500);
-    }
-}
+// 🔹 Booking Queue Manager
+class BookingQueue {
 
-class DoubleRoom extends Room {
-    public DoubleRoom() {
-        super("Double Room", 2500);
-    }
-}
+    private Queue<Reservation> queue = new LinkedList<>();
 
-class SuiteRoom extends Room {
-    public SuiteRoom() {
-        super("Suite Room", 5000);
-    }
-}
-
-// 🔹 Inventory Class (Read-only usage here)
-class RoomInventory {
-    private Map<String, Integer> inventory = new HashMap<>();
-
-    public RoomInventory() {
-        inventory.put("Single Room", 5);
-        inventory.put("Double Room", 0); // unavailable
-        inventory.put("Suite Room", 2);
+    // Add request to queue
+    public void addRequest(Reservation reservation) {
+        queue.add(reservation);
+        System.out.println("Request added: " + reservation);
     }
 
-    public int getAvailability(String roomType) {
-        return inventory.getOrDefault(roomType, 0);
-    }
-}
-
-// 🔹 Search Service
-class RoomSearchService {
-
-    public static void searchAvailableRooms(List<Room> rooms, RoomInventory inventory) {
-
-        System.out.println("\nAvailable Rooms:\n");
-
-        for (Room room : rooms) {
-
-            int available = inventory.getAvailability(room.getType());
-
-            // 🔹 Show only available rooms
-            if (available > 0) {
-                room.displayDetails();
-                System.out.println("Available: " + available + "\n");
-            }
+    // Display all requests
+    public void displayQueue() {
+        System.out.println("\nCurrent Booking Queue:");
+        for (Reservation r : queue) {
+            System.out.println(r);
         }
     }
 }
 
 // 🔹 Main Class
-public class UseCase4RoomSearch {
+public class UseCase5BookingRequestQueue {
 
     public static void main(String[] args) {
 
         System.out.println("=== Book My Stay App ===");
-        System.out.println("Version: 4.0");
+        System.out.println("Version: 5.0");
 
-        // Room objects
-        List<Room> rooms = new ArrayList<>();
-        rooms.add(new SingleRoom());
-        rooms.add(new DoubleRoom());
-        rooms.add(new SuiteRoom());
+        // Initialize queue
+        BookingQueue bookingQueue = new BookingQueue();
 
-        // Inventory
-        RoomInventory inventory = new RoomInventory();
+        // 🔹 Add booking requests (FIFO order)
+        bookingQueue.addRequest(new Reservation("Arun", "Single Room"));
+        bookingQueue.addRequest(new Reservation("Priya", "Double Room"));
+        bookingQueue.addRequest(new Reservation("Rahul", "Suite Room"));
 
-        // Search (Read-only)
-        RoomSearchService.searchAvailableRooms(rooms, inventory);
+        // 🔹 Display queue
+        bookingQueue.displayQueue();
 
-        System.out.println("Search completed. System state unchanged.");
+        System.out.println("\nNote: Requests are stored in arrival order (FIFO).");
+        System.out.println("No rooms allocated yet.");
+
+        System.out.println("\nApplication terminated.");
     }
 }
